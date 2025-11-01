@@ -1,0 +1,42 @@
+name: C++ Auto Build & Run
+
+on:
+  push:
+    branches: [ "main" ]         # Runs when you push to main
+  pull_request:
+    branches: [ "main" ]         # Also runs for PRs
+  workflow_dispatch:              # Lets you trigger it manually
+
+jobs:
+  build:
+    name: Compile and Run C++ Programs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up C++ Environment
+        run: sudo apt-get install -y g++
+
+      - name: Compile All C++ Files
+        run: |
+          echo "Compiling all .cpp files..."
+          for file in *.cpp; do
+            exe="${file%.cpp}"
+            echo "Compiling $file -> $exe"
+            g++ -std=c++17 -O2 "$file" -o "$exe"
+          done
+
+      - name: Run All Executables
+        run: |
+          echo " Running all compiled programs..."
+          for exe in *; do
+            if [[ -x "$exe" && "$exe" != *.cpp ]]; then
+              echo "=========================="
+              echo "Running: $exe"
+              echo "--------------------------"
+              ./"$exe"
+              echo "=========================="
+            fi
+          done
